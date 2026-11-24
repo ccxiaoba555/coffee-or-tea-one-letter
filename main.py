@@ -18,10 +18,19 @@ CHOICE = "A"  # A = coffee, B = tea
 def main() -> None:
     # Exactly one character, no trailing newline: the gate requires
     # /output/entry.txt to be UTF-8 text of 1 to 1 characters.
+    if CHOICE not in ("A", "B"):
+        raise SystemExit(f"bad choice {CHOICE!r}: must be A (coffee) or B (tea)")
     os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     with open(OUTPUT_PATH, "w", encoding="utf-8", newline="") as f:
         f.write(CHOICE)
-    assert os.path.getsize(OUTPUT_PATH) == 1
+    # Gate self-check: read back and verify the file is exactly one
+    # letter, no newline, no extra bytes.
+    with open(OUTPUT_PATH, "r", encoding="utf-8", newline="") as f:
+        text = f.read()
+    if len(text) != 1 or text not in ("A", "B"):
+        raise SystemExit(f"bad entry {text!r}: must be a single letter A or B")
+    if os.path.getsize(OUTPUT_PATH) != 1:
+        raise SystemExit("bad entry: file must be exactly 1 byte")
 
 
 if __name__ == "__main__":
